@@ -25,13 +25,19 @@
 #include <functional>
 
 #include "server.h"
-#include "sensors.h"
 
-using namespace Sensors;
 using namespace std;
 using namespace OC;
 
 bool IoTServer::m_over = false;
+
+double IoTServer::m_lat = 48.1033;
+double IoTServer::m_lon = -1.6725;
+double IoTServer::m_offset = 0.001;
+
+
+double IoTServer::m_latmax = 49;
+double IoTServer::m_latmin = 48;
 
 void IoTServer::initializePlatform()
 {
@@ -46,26 +52,39 @@ void IoTServer::initializePlatform()
     OCPlatform::Configure(*m_platformConfig);
 }
 
-IoTServer::IoTServer(int pin, string key)
+IoTServer::IoTServer(string key)
 {
     cerr << __PRETTY_FUNCTION__ << endl;
+    m_Data = "0,0";
     initializePlatform();
     setupResources();
-    m_ledRepresentation.setValue(key, 0);
-    SetupPins(pin);
+
+    m_Representation.setValue(key, m_Data);
 }
 
 IoTServer::~IoTServer()
 {
     cerr << __PRETTY_FUNCTION__ << endl;
-    ClosePins();
 }
 
 void IoTServer::setupResources()
 {
     cerr << __PRETTY_FUNCTION__ << endl;
-    EntityHandler cb3 = bind(&IoTServer::LEDEntityHandler, this, placeholders::_1);
-    createResource(Config::m_endpoint, Config::m_type, cb3, m_ledResource);
+    EntityHandler cb3 = bind(&IoTServer::ResourceEntityHandler, this, placeholders::_1);
+    createResource(Config::m_endpoint, Config::m_type, cb3, m_Resource);
+
+    OCStackResult result ;
+    result = OCPlatform::bindTypeToResource(m_Resource, Config::m_type);
+    if (OC_STACK_OK != result)
+    {
+        cout << "Binding TypeName to Resource was unsuccessful\n";
+    }
+
+    result = OCPlatform::bindInterfaceToResource(m_Resource, Config::m_link);
+    if (OC_STACK_OK != result)
+    {
+        cout << "Binding TypeName to Resource was unsuccessful\n";
+    }
 }
 
 void IoTServer::createResource(string Uri, string Type, EntityHandler Cb, OCResourceHandle &Handle)
@@ -85,28 +104,57 @@ void IoTServer::createResource(string Uri, string Type, EntityHandler Cb, OCReso
         cout << "Successfully created " << Type << " resource" << endl;
 }
 
-void IoTServer::putLEDRepresentation()
+void IoTServer::putResourceRepresentation()
 {
-    int state = 0;
-    m_ledRepresentation.getValue(Config::m_key, state);
-    SetOnboardLed(state);
-    OCStackResult result = OCPlatform::notifyAllObservers(m_ledResource);
-    if (state == 0)
-        cout << "Turned off LED" << endl;
-    else if (state == 1)
-        cout << "Turned on LED" << endl;
-    else
-        cerr << "Invalid request value" << endl;
+    m_Representation.getValue(Config::m_key, m_Data);
+    OCStackResult result = OCPlatform::notifyAllObservers(m_Resource);
+    cerr << "data=" << m_Data << endl;
 }
 
-OCRepresentation IoTServer::getLEDRepresentation()
+void IoTServer::update()
 {
-    return m_ledRepresentation;
+    cerr << __PRETTY_FUNCTION__ << endl;
+
+    {
+        string data = "0,0";
+        time_t const now = time(0);
+        char *dt = ctime(&now);
+        data = string(dt);
+        m_Representation.setValue(Config::m_key, data);
+    }
+
+    {
+        m_lat += m_offset;
+        m_lon += m_offset;
+
+        if (m_lat > m_latmax)
+        {
+            if (m_offset > 0) { m_offset = - m_offset; }
+        }
+        else if (m_lat < m_latmin)
+        {
+            if ( m_offset < 0 ) m_offset = - m_offset;
+        }
+
+        m_Representation.setValue("lat", m_lat);
+        m_Representation.setValue("lon", m_lon);
+
+        cerr << "location: " << std::fixed << m_lat << "," << std::fixed << m_lon << std::endl;
+    }
+
+    putResourceRepresentation();
+}
+
+OCRepresentation IoTServer::getResourceRepresentation()
+{
+    return m_Representation;
 }
 
 
-OCEntityHandlerResult IoTServer::LEDEntityHandler(shared_ptr<OCResourceRequest> Request)
+OCEntityHandlerResult IoTServer::ResourceEntityHandler(shared_ptr<OCResourceRequest> Request)
 {
+    cerr << __PRETTY_FUNCTION__ << endl;
+
     OCEntityHandlerResult result = OC_EH_ERROR;
     if (Request)
     {
@@ -119,13 +167,13 @@ OCEntityHandlerResult IoTServer::LEDEntityHandler(shared_ptr<OCResourceRequest> 
             Response->setResourceHandle(Request->getResourceHandle());
             if (requestType == "PUT")
             {
-                cout << "PUT request for platform LED" << endl;
+                cout << "PUT request for platform Resource" << endl;
                 OCRepresentation requestRep = Request->getResourceRepresentation();
                 if (requestRep.hasAttribute(Config::m_key))
                 {
                     try
                     {
-                        requestRep.getValue<int>(Config::m_key);
+                        requestRep.getValue<string>(Config::m_key);
                     }
                     catch (...)
                     {
@@ -142,12 +190,12 @@ OCEntityHandlerResult IoTServer::LEDEntityHandler(shared_ptr<OCResourceRequest> 
                     cerr << "Client sent invalid resource key" << endl;
                     return result;
                 }
-                m_ledRepresentation = requestRep;
-                putLEDRepresentation();
+                m_Representation = requestRep;
+                putResourceRepresentation();
                 if (Response)
                 {
                     Response->setErrorCode(200);
-                    Response->setResourceRepresentation(getLEDRepresentation());
+                    Response->setResourceRepresentation(getResourceRepresentation());
                     Response->setResponseResult(OC_EH_OK);
                     if (OCPlatform::sendResponse(Response) == OC_STACK_OK)
                     {
@@ -157,12 +205,12 @@ OCEntityHandlerResult IoTServer::LEDEntityHandler(shared_ptr<OCResourceRequest> 
             }
             else if (requestType == "GET")
             {
-                cout << "GET request for platform LED" << endl;
+                cout << "GET request for platform Resource" << endl;
                 if (Response)
                 {
                     Response->setErrorCode(200);
-                    Response->setResourceRepresentation(getLEDRepresentation());
                     Response->setResponseResult(OC_EH_OK);
+                    Response->setResourceRepresentation(getResourceRepresentation());
                     if (OCPlatform::sendResponse(Response) == OC_STACK_OK)
                     {
                         result = OC_EH_OK;
@@ -181,6 +229,7 @@ OCEntityHandlerResult IoTServer::LEDEntityHandler(shared_ptr<OCResourceRequest> 
 }
 
 
+
 void handle_signal(int signal)
 {
     IoTServer::m_over = true;
@@ -194,21 +243,40 @@ int main(int argc, char *argv[])
     sa.sa_handler = handle_signal;
     sigaction(SIGINT, &sa, NULL);
 
-    cout << "Server: " << endl
+    cerr << "Server: " << endl
          << "Press Ctrl-C to quit...." << endl;
 
-    if (argc > 1 && argv[1])
+    IoTServer server(Config::m_key);
+
+    int delay = 5;
+    if ((argc > 1) && argv[1])
     {
-        Config::m_gpio  = atoi(argv[1]);
+        delay = atoi(argv[1]);
+    }
+    if ((argc > 2) && argv[2])
+    {
+        server.m_offset = atof(argv[2]);
     }
 
-    IoTServer server(Config::m_gpio, Config::m_key);
+    if ((argc > 3) && argv[3])
+    {
+        server.m_lat = atof(argv[3]);
+    }
+
+    if ((argc > 4) && argv[4])
+    {
+        server.m_lon = atof(argv[4]);
+    }
+
+    server.m_latmax = server.m_lat + 1;
+    server.m_latmin = server.m_lat - 1;
 
     do
     {
-        usleep(2000000);
+        server.update();
+        sleep(delay);
     }
-    while ( ! IoTServer::m_over );
+    while ( !  IoTServer::m_over );
     return 0;
 }
 
