@@ -1,5 +1,5 @@
 Name:           iotivity-example
-Version:        0.9.0
+Version:        1.0.0
 Release:        0
 License:        Apache-2.0
 Summary:        Very minimalist example of IoTivity resource
