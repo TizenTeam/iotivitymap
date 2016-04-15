@@ -1,4 +1,4 @@
-Name:           iotivity-example
+Name:           iotivity-example-stream
 Version:        1.0.0
 Release:        0
 License:        Apache-2.0
@@ -12,7 +12,6 @@ Source:         %{name}-%{version}.tar.gz
 BuildRequires:  make
 BuildRequires:  fdupes
 BuildRequires:  iotivity-devel
-BuildRequires:  mraa-devel
 BuildRequires:  boost-devel
 
 
@@ -28,7 +27,7 @@ that share a single gpio output as IoTivity resource.
 
 
 %install
-%__make install DEST_LIB_DIR=%{buildroot}%{_libdir}/%{name}/
+%__make install DEST_LIB_DIR=%{buildroot}%{_libdir}/%{name}/ 
 
 
 %fdupes %{buildroot}
