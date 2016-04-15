@@ -20,6 +20,8 @@
 //
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 #include "config.h"
+#include <cstdio>
+
 #include "observer.h"
 
 using namespace std;
@@ -68,7 +70,8 @@ void IoTObserver::findResource()
     OCPlatform::findResource("", coap_multicast_discovery.c_str(),
                              connectivityType,
                              m_resourceDiscoveryCallback,
-                             OC::QualityOfService::LowQos);
+                             OC::QualityOfService::LowQos // TODO
+                            );
 }
 
 void IoTObserver::discoveredResource(shared_ptr<OCResource> resource)
@@ -130,10 +133,10 @@ void IoTObserver::onObserve(const HeaderOptions /*headerOptions*/, const OCRepre
 
             std::cout << "OBSERVE RESULT:" << std::endl;
             std::cout << "\tSequenceNumber: " << sequenceNumber << std::endl;
-            int state = 0;
-            rep.getValue( Config::m_key, state);
+            std::string data;
+            rep.getValue( Config::m_key, data);
 
-            std::cout << Config::m_key << "=" << state << std::endl;
+            std::cout << Config::m_key << "=" << data << std::endl;
         }
         else
         {
