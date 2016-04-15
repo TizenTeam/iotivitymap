@@ -30,6 +30,7 @@
 #include <iotivity/resource/OCPlatform.h>
 #include <iotivity/resource/OCResource.h>
 
+int observer_main(int argc, char *argv[]);
 
 
 class IoTObserver
