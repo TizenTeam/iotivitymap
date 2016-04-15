@@ -32,31 +32,31 @@
 #include <iotivity/resource/OCResource.h>
 
 
-class LED
+class Resource
 {
         std::shared_ptr<OC::OCResource> m_resourceHandle;
-        OC::OCRepresentation m_ledRepresentation;
+        OC::OCRepresentation m_Representation;
         OC::GetCallback m_GETCallback;
         OC::PutCallback m_PUTCallback;
         void onGet(const OC::HeaderOptions &, const OC::OCRepresentation &, int);
         void onPut(const OC::HeaderOptions &, const OC::OCRepresentation &, int);
     public:
         void get();
-        void put(int);
-        LED(std::shared_ptr<OC::OCResource> Resource);
-        virtual ~LED();
+        void put(std::string);
+        Resource(std::shared_ptr<OC::OCResource> resource);
+        virtual ~Resource();
 };
 
 
 class IoTClient
 {
-        std::shared_ptr<LED> m_platformLED;
+        std::shared_ptr<Resource> m_platformResource;
         std::shared_ptr<OC::PlatformConfig> m_platformConfig;
         OC::FindCallback m_resourceDiscoveryCallback;
         void initializePlatform();
         void discoveredResource(std::shared_ptr<OC::OCResource>);
     public:
-        std::shared_ptr<LED> getPlatformLED();
+        std::shared_ptr<Resource> getPlatformResource();
         void findResource();
         IoTClient();
         virtual ~IoTClient();
