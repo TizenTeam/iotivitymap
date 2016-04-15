@@ -22,70 +22,82 @@
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 #include "config.h"
+#include <unistd.h>
+#include <ctime>
 #include "client.h"
 
 using namespace std;
 using namespace OC;
 
 
-shared_ptr<LED> IoTClient::getPlatformLED()
+Resource::Resource(shared_ptr<OCResource> resource)
 {
-    return m_platformLED;
+    m_resourceHandle = resource;
+    m_GETCallback = bind(&Resource::onGet, this, placeholders::_1, placeholders::_2, placeholders::_3);
+    m_PUTCallback = bind(&Resource::onPut, this, placeholders::_1, placeholders::_2, placeholders::_3);
 }
 
-LED::LED(shared_ptr<OCResource> Resource)
-{
-    m_resourceHandle = Resource;
-    m_GETCallback = bind(&LED::onGet, this, placeholders::_1, placeholders::_2, placeholders::_3);
-    m_PUTCallback = bind(&LED::onPut, this, placeholders::_1, placeholders::_2, placeholders::_3);
-}
-
-LED::~LED()
+Resource::~Resource()
 {
 }
 
-void LED::get()
+
+shared_ptr<Resource> IoTClient::getPlatformResource()
+{
+    return m_platformResource;
+}
+
+
+void Resource::get()
 {
     QueryParamsMap params;
     m_resourceHandle->get(params, m_GETCallback);
 }
 
-void LED::put(int Switch)
+void Resource::put(std::string data)
 {
     QueryParamsMap params;
     OCRepresentation rep;
-    rep.setValue(Config::m_key, Switch);
+    rep.setValue(Config::m_key, data);
+
+    static double lat = 52.165;
+    static double lon = -2.21;
+    lat += 0.01;
+    lon += 0.01;
+
+    rep.setValue("lat", lat);
+    rep.setValue("lon", lon);
     m_resourceHandle->put(rep, params, m_PUTCallback);
 }
 
-void LED::onGet(const HeaderOptions &headerOptions, const OCRepresentation &representation,
-                int errCode)
+void Resource::onGet(const HeaderOptions &headerOptions, const OCRepresentation &representation,
+                     int errCode)
 {
     if (errCode == OC_STACK_OK)
     {
         int value;
         representation.getValue(Config::m_key, value);
-        cout << endl << endl << "LED switch state is: " << value << endl;
+        cout << endl << endl << "Resource switch state is: " << value << endl;
     }
     else
     {
-        cerr << endl << endl << "Error in GET response from LED resource" << endl;
+        cerr << endl << endl << "Error in GET response from Resource resource" << endl;
     }
     IoTClient::DisplayMenu();
 }
 
-void LED::onPut(const HeaderOptions &headerOptions, const OCRepresentation &representation,
-                int errCode)
+void Resource::onPut(const HeaderOptions &headerOptions, const OCRepresentation &representation,
+                     int errCode)
 {
     if (errCode == OC_STACK_OK)
     {
         int value;
         representation.getValue(Config::m_key, value);
-        cout << endl << endl << "Set LED switch to: " << value << endl;
+        cout << endl << endl << "Set Resource switch to: " << value << endl;
     }
     else
     {
-        cerr << endl << endl << "Error in PUT response from LED resource" << endl;
+        cerr << endl << endl << "Error in PUT response from Resource resource" << endl;
     }
     IoTClient::DisplayMenu();
 }
@@ -133,23 +145,23 @@ void IoTClient::findResource()
                              OC::QualityOfService::LowQos);
 }
 
-void IoTClient::discoveredResource(shared_ptr<OCResource> Resource)
+void IoTClient::discoveredResource(shared_ptr<OCResource> resource)
 {
     try
     {
-        if (Resource)
+        if (resource)
         {
-            string resourceUri = Resource->uri();
-            string hostAddress = Resource->host();
+            string resourceUri = resource->uri();
+            string hostAddress = resource->host();
 
             cout << "\nFound Resource" << endl << "Resource Types:" << endl;
-            for (auto & resourceTypes : Resource->getResourceTypes())
+            for (auto & resourceTypes : resource->getResourceTypes())
             {
                 cout << "\t" << resourceTypes << endl;
             }
 
             cout << "Resource Interfaces: " << endl;
-            for (auto & resourceInterfaces : Resource->getResourceInterfaces())
+            for (auto & resourceInterfaces : resource->getResourceInterfaces())
             {
                 cout << "\t" << resourceInterfaces << endl;
             }
@@ -158,7 +170,7 @@ void IoTClient::discoveredResource(shared_ptr<OCResource> Resource)
 
             if (resourceUri == Config::m_endpoint)
             {
-                m_platformLED = make_shared<LED>(Resource);
+                m_platformResource = make_shared<Resource>(resource);
             }
         }
         IoTClient::DisplayMenu();
@@ -175,9 +187,6 @@ void IoTClient::DisplayMenu()
 {
     cout << "\nEnter:" << endl
          << "*) Display this menu" << endl
-         << "0) Turn LED OFF" << endl
-         << "1) Turn LED ON" << endl
-         << "2) Toggle LED" << endl
          << "9) Quit" << endl;
 }
 
@@ -187,36 +196,28 @@ int main(int argc, char *argv[])
     IoTClient client;
     cout << "Performing Discovery..." << endl;
     client.findResource();
-    int choice;
-    bool state = false;
+    int choice = 0;
+
     do
     {
-        cin >> choice;
-        switch (choice)
+
+        string data = "0,0";
+
+        time_t const now = time(0);
+        char *dt = ctime(&now);
+        data = string(dt);
+
+        if (client.getPlatformResource())
         {
-            case 0:
-                state = false;
-                break;
-            case 1:
-                state = true;
-                break;
-
-            case 2:
-                state = !state;
-                break;
-
-            case 9:
-                return 0;
-
-            default:
-                IoTClient::DisplayMenu();
-                break;
+            client.getPlatformResource()->put(data);
         }
-
-        if (client.getPlatformLED())
-            client.getPlatformLED()->put(state);
         else
-            cout << "LED resource not yet discovered" << endl;
+        {
+            cout << "Resource resource not yet discovered" << endl;
+        }
+        cerr << "sleeping" << endl;
+        sleep(10);
+        cerr << "slept:" << choice << endl;
 
     }
     while (choice != 9);
