@@ -39,8 +39,8 @@ class Config
         static std::string  m_endpoint;
         /** key (used both sides) **/
         static std::string  m_key;
-        /** gpio logical pin (only used in server) **/
-        static unsigned int m_gpio;
+        /** network interface**/
+        static std::string m_link;
 };
 
 #endif /* CONFIG_H_ */
