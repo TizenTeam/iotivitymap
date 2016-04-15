@@ -23,9 +23,8 @@
 
 default: all
 
-package?=iotivity-example
+package?=iotivity-example-stream
 
-config_mraa?=1
 
 DEST_LIB_DIR?=${DESTDIR}${local_optdir}/${package}/
 local_bindir?=bin
@@ -42,24 +41,25 @@ CPPFLAGS=-I. \
 
 CXXFLAGS+=-std=gnu++0x
 LIBS+= -loc -loc_logger -loctbstack
+#LIBS+= -luuid -lconnectivity_abstraction
 
 srcs?=config.cpp
 objs?=${srcs:.cpp=.o}
 client?=${local_bindir}/client
-server_objs?=sensors.o
 server?=${local_bindir}/server
 observer?=${local_bindir}/observer
 
 all?=${client} ${observer}
 
-ifeq (${config_mraa},1)
-LIBS+=-lmraa
+${local_bindir}/%: %.o ${objs}
+	@-mkdir -p ${@D}
+	${CXX} -o ${@} $^ ${LDFLAGS} ${LIBS}
+
 all+=${server}
 
 ${local_bindir}/server: server.o ${server_objs} ${objs}
 	@-mkdir -p ${@D}
 	${CXX} -o ${@} $^ ${LDFLAGS} ${LIBS}
-endif
 
 all: ${all}
 
