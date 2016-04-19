@@ -353,19 +353,20 @@
 					</folderInfo>
 					<folderInfo id="org.tizen.nativecore.config.sbi.gcc45.app.debug.24591278.832281784" name="/" resourcePath="lib">
 						<toolChain id="org.tizen.nativecore.toolchain.sbi.gcc45.app.debug.1479808003" name="Tizen Native Toolchain" superClass="org.tizen.nativecore.toolchain.sbi.gcc45.app.debug" unusedChildren="">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="org.tizen.nativeide.target.sbi.gnu.platform.base" osList="linux,win32" superClass="org.tizen.nativeide.target.sbi.gnu.platform.base"/>
 							<tool id="org.tizen.nativecore.tool.sbi.gnu.archiver.778527278" name="Archiver" superClass="org.tizen.nativecore.tool.sbi.gnu.archiver.870352522"/>
 							<tool id="org.tizen.nativecore.tool.sbi.gnu.cpp.compiler.2101311296" name="C++ Compiler" superClass="org.tizen.nativecore.tool.sbi.gnu.cpp.compiler.423964861">
-								<option defaultValue="false" id="sbi.gnu.cpp.compiler.option.misc.pic.core.1901463093" superClass="sbi.gnu.cpp.compiler.option.misc.pic.core" valueType="boolean"/>
+								<option defaultValue="false" id="sbi.gnu.cpp.compiler.option.misc.pic.core.1901463093" name="-fPIC option" superClass="sbi.gnu.cpp.compiler.option.misc.pic.core" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1661010629" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="org.tizen.nativecore.tool.sbi.gnu.c.compiler.928739410" name="C Compiler" superClass="org.tizen.nativecore.tool.sbi.gnu.c.compiler.1167130066">
-								<option defaultValue="false" id="sbi.gnu.c.compiler.option.misc.pic.core.10040023" superClass="sbi.gnu.c.compiler.option.misc.pic.core" valueType="boolean"/>
+								<option defaultValue="false" id="sbi.gnu.c.compiler.option.misc.pic.core.10040023" name="-fPIC option" superClass="sbi.gnu.c.compiler.option.misc.pic.core" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1354913127" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="org.tizen.nativeide.tool.sbi.gnu.c.linker.base.341849778" name="C Linker" superClass="org.tizen.nativeide.tool.sbi.gnu.c.linker.base.314691814"/>
 							<tool id="org.tizen.nativecore.tool.sbi.gnu.cpp.linker.1998838160" name="C++ Linker" superClass="org.tizen.nativecore.tool.sbi.gnu.cpp.linker.2115154335">
-								<option defaultValue="false" id="sbi.gnu.cpp.linker.option.shared_flag.core.1434346004" superClass="sbi.gnu.cpp.linker.option.shared_flag.core" valueType="boolean"/>
-								<option defaultValue="false" id="sbi.gnu.cpp.linker.option.noundefined.core.1386856692" superClass="sbi.gnu.cpp.linker.option.noundefined.core" valueType="boolean"/>
+								<option defaultValue="false" id="sbi.gnu.cpp.linker.option.shared_flag.core.1434346004" name="Linker.Shared" superClass="sbi.gnu.cpp.linker.option.shared_flag.core" valueType="boolean"/>
+								<option defaultValue="false" id="sbi.gnu.cpp.linker.option.noundefined.core.1386856692" name="Report unresolved symbol references (-Wl,--no-undefined)" superClass="sbi.gnu.cpp.linker.option.noundefined.core" valueType="boolean"/>
 							</tool>
 							<tool id="org.tizen.nativeapp.tool.sbi.gnu.assembler.base.2013324712" name="Assembler" superClass="org.tizen.nativeapp.tool.sbi.gnu.assembler.base.1064547475">
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1866876911" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
@@ -379,11 +380,12 @@
 							<tool id="org.tizen.nativecore.tool.sbi.edc.compiler.1014935386" name="EDC Resource Compiler" superClass="org.tizen.nativecore.tool.sbi.edc.compiler.1114423893"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="org.tizen.nativecore.config.sbi.gcc45.app.debug.24591278.1195867593" name="logger.inl" rcbsApplicability="disable" resourcePath="src/logger.inl" toolsToInvoke=""/>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="inc"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="res"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="shared"/>
-						<entry excluding="sensors.cpp|server.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="logger.inl|sensors.cpp|server.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
