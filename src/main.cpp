@@ -122,14 +122,6 @@ create_base_gui(appdata_s *ad)
 
 }
 
-static Eina_Bool onTick(void *data )
-{
-	dlog_print(DLOG_ERROR, LOG_TAG, __PRETTY_FUNCTION__);
-
-	std::shared_ptr<Resource> resource = IoTClient::getInstance()->getPlatformResource();
-	if ( resource ) resource->get(); // wait discovery
-   return EINA_TRUE;
-}
 
 static void iot_end_func(void *data, Ecore_Thread *thread) {
 	dlog_print(DLOG_ERROR, LOG_TAG,__PRETTY_FUNCTION__);
@@ -179,6 +171,28 @@ static void eval_cb(void *user_data, Evas_Object *obj, void *event_info) {
 	}
 }
 
+static Eina_Bool onTick(void *data )
+{
+	dlog_print(DLOG_ERROR, LOG_TAG, __PRETTY_FUNCTION__);
+	appdata_s *ad = (appdata_s *) data;
+
+	if ( !true ) {
+		std::shared_ptr<Resource> resource = IoTClient::getInstance()->getPlatformResource();
+		if ( resource ) resource->get(); // wait discovery
+	} else {
+		if (false) {
+			start_location_manager(ad);
+		} else {
+			static double lat = 52.165;
+			static double lon = -2.21;
+			lat+=0.01;
+			lon+=0.01;
+			map_region_show(lon,lat);
+		}
+
+	}
+   return EINA_TRUE;
+}
 
 static bool
 app_create(void *data)
@@ -194,29 +208,7 @@ app_create(void *data)
 
 	create_base_gui(ad);
 
-	if (false) {
-		start_location_manager(ad);
-	} else if (false) {
-		double lat = 52.165;
-		double lon = -2.21;
-		map_region_show(lon,lat);
-	}
-
-	int status;
-	if (ad->thread == 0) {
-		ad->thread = ecore_thread_feedback_run(iot_heavy_func, iot_notify_func,
-				iot_end_func, iot_cancel_func, ad, EINA_FALSE);
-	} else {
-		if (ad->thread) {
-			status = ecore_thread_cancel(ad->thread);
-			if (status) {
-				ad->thread = 0;
-			}
-		}
-	}
-
-
-	{ //
+	{
 	  ecore_timer_add(Config::m_period, onTick, ad);
 	}
 
