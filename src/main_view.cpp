@@ -6,16 +6,13 @@
 #include "main_view.h"
 #include "util.h"
 
-#define ROUTE_VIEW_EDJ_FILE "edje/routeview.edj"
 
-#define MAPS_PROVIDER	"HERE"
-#define PROVIDER_TEST_KEY	"Insert your key"
 
 #define UA_TIZEN_WEB \
 		"Mozilla/5.0 (Linux; Tizen 2.1; SAMSUNG GT-I8800) AppleWebKit/537.3 (KHTML, like Gecko) Version/2.1 Mobile Safari/537.3"
 
-#define DEFAULT_LAT		37.253665
-#define DEFAULT_LON		127.054968
+#define DEFAULT_LAT		37.2350
+#define DEFAULT_LON		-115.8111
 
 bool __is_revgeocode_supported = false;
 bool __is_place_search_supported = false;
@@ -32,7 +29,6 @@ bool __is_long_pressed = false;
 
 double __poi_center_lat = 0.0;
 double __poi_center_lon = 0.0;
-
 
 
 Elm_Map_Overlay *__m_poi_overlay[50];
@@ -269,10 +265,11 @@ static void
 __gl_content_get_by_type(Evas_Object *parent)
 {
         char edj_path[PATH_MAX] = {0, };
-        app_get_resource(ROUTE_VIEW_EDJ_FILE, edj_path, (int)PATH_MAX);
+
+        app_get_resource("edje/pointer.edj", edj_path, (int)PATH_MAX);
 
         Evas_Object *img = elm_image_add(parent);
-        elm_image_file_set(img, ROUTE_VIEW_EDJ_FILE, "transportation_car");
+        elm_image_file_set(img, "edje/pointer.edj", "transportation_car");
         evas_object_size_hint_align_set(img, EVAS_HINT_FILL, EVAS_HINT_FILL);
         evas_object_size_hint_weight_set(img, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
         evas_object_show(img);
@@ -338,6 +335,5 @@ void map_region_show(double lon, double lat)
 
 	ecore_thread_main_loop_begin();
 	elm_map_region_show(m_map_evas_object, __poi_center_lon, __poi_center_lat);
-
 	ecore_thread_main_loop_end();
 }
