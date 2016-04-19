@@ -217,7 +217,7 @@ app_create(void *data)
 
 
 	{ //
-	  ecore_timer_add(5, onTick, ad);
+	  ecore_timer_add(Config::period, onTick, ad);
 	}
 
 	return true;

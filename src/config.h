@@ -51,6 +51,8 @@ class Config
         static std::string  m_key;
         /** network interface**/
         static std::string m_link;
+        /** polling period**/
+        static const int m_period = 10;
 };
 
 #endif /* CONFIG_H_ */

@@ -6,6 +6,8 @@
 #include "main_view.h"
 #include "util.h"
 
+#define ROUTE_VIEW_EDJ_FILE "edje/routeview.edj"
+
 #define MAPS_PROVIDER	"HERE"
 #define PROVIDER_TEST_KEY	"Insert your key"
 
@@ -263,6 +265,21 @@ MapLocationView(Evas_Object *view_layout)
 	elm_object_focus_custom_chain_append(view_layout, m_searchbar_obj, NULL);
 }
 
+static void
+__gl_content_get_by_type(Evas_Object *parent)
+{
+        char edj_path[PATH_MAX] = {0, };
+        app_get_resource(ROUTE_VIEW_EDJ_FILE, edj_path, (int)PATH_MAX);
+
+        Evas_Object *img = elm_image_add(parent);
+        elm_image_file_set(img, ROUTE_VIEW_EDJ_FILE, "transportation_car");
+        evas_object_size_hint_align_set(img, EVAS_HINT_FILL, EVAS_HINT_FILL);
+        evas_object_size_hint_weight_set(img, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+        evas_object_show(img);
+        elm_layout_content_set(parent, "elm.swallow.content", img);
+}
+
+
 Evas_Object*
 create_map_view(Evas_Object *parent)
 {
@@ -278,8 +295,13 @@ create_map_view(Evas_Object *parent)
 	m_parent_evas_obj = parent;
 	m_map_view_layout = view_layout;
 
+    Evas_Object *content = elm_layout_add(parent);
+    __gl_content_get_by_type(content);
+    evas_object_show(content);
+
 	return view_layout;
 }
+
 
 static void end_func(void *data, Ecore_Thread *thread) {
 	appdata_s *ad =  (appdata_s *) data;
@@ -316,5 +338,6 @@ void map_region_show(double lon, double lat)
 
 	ecore_thread_main_loop_begin();
 	elm_map_region_show(m_map_evas_object, __poi_center_lon, __poi_center_lat);
+
 	ecore_thread_main_loop_end();
 }
