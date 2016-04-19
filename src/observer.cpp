@@ -20,11 +20,11 @@
 //
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 #include "config.h"
+#include "logger.inl"
+
 #include <cstdio>
 
 #include <dlog.h>
-#include "logger.h"
-#include "logger.inl"
 
 #include "observer.h"
 #include "main_view.h"
