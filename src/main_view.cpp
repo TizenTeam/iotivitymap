@@ -11,16 +11,9 @@
 #define UA_TIZEN_WEB \
 		"Mozilla/5.0 (Linux; Tizen 2.1; SAMSUNG GT-I8800) AppleWebKit/537.3 (KHTML, like Gecko) Version/2.1 Mobile Safari/537.3"
 
-#define DEFAULT_LAT		37.2350
-#define DEFAULT_LON		-115.8111
-
-bool __is_revgeocode_supported = false;
-bool __is_place_search_supported = false;
-bool __is_routing_supported = false;
 
 Evas_Object *m_map_obj_layout = NULL;
 Evas_Object *m_map_evas_object = NULL;
-Evas_Object *m_searchbar_obj = NULL;
 Evas_Object *m_map_view_layout = NULL;
 Evas_Object *m_parent_evas_obj = NULL;
 
@@ -29,12 +22,6 @@ bool __is_long_pressed = false;
 
 double __poi_center_lat = 0.0;
 double __poi_center_lon = 0.0;
-
-
-Elm_Map_Overlay *__m_poi_overlay[50];
-int __m_poi_overlay_count;
-Elm_Map_Overlay *__m_poi_current_overlay = NULL;
-const int __overlay_displayed_zoom_min = 5;
 
 
 static void MapLocationView(Evas_Object *view_layout);
@@ -79,17 +66,8 @@ init()
 {
 	__view_type = MAPS_VIEW_MODE_MY_LOCATION;
 
-	int i = 0;
-	for (i = 0; i < 50; i++)
-		__m_poi_overlay[i] = NULL;
-
-	__m_poi_overlay_count = 0;
-
-	__m_poi_current_overlay = NULL;
-
 	m_map_obj_layout = NULL;
 	m_map_evas_object = NULL;
-	m_searchbar_obj = NULL;
 
 	__is_long_pressed = false;
 }
@@ -226,7 +204,7 @@ __create_map_object(Evas_Object *layout)
 	evas_object_smart_callback_add(m_map_evas_object, "clicked", __maps_clicked_cb, (void *)NULL);
 
 	elm_map_zoom_set(m_map_evas_object, 15);
-	elm_map_region_bring_in(m_map_evas_object, DEFAULT_LON, DEFAULT_LAT);
+	elm_map_region_bring_in(m_map_evas_object, 0, 0);
 
 	return map_obj_layout;
 }
@@ -258,7 +236,6 @@ MapLocationView(Evas_Object *view_layout)
 	elm_object_focus_set(m_map_obj_layout, EINA_TRUE);
 
 	elm_object_focus_custom_chain_append(view_layout, m_map_obj_layout, NULL);
-	elm_object_focus_custom_chain_append(view_layout, m_searchbar_obj, NULL);
 }
 
 static void
@@ -329,19 +306,22 @@ handle_elm_map_region_show(void *data, Evas_Object *obj, void *event_info)
 }
 
 static void
-thread_safe_call_async_cb(void *data)
+*thread_safe_call_sync_cb(void *data)
 {
 	elm_map_region_show(m_map_evas_object, __poi_center_lon, __poi_center_lat);
 }
 
 void map_region_show(double lon, double lat)
 {
+	static int count=0;
+    dlog_print(DLOG_INFO, LOG_TAG, "%d*%s", ++count , __PRETTY_FUNCTION__ );
+
 	__poi_center_lat = lat;
 	__poi_center_lon = lon;
 
-    ecore_main_loop_thread_safe_call_async(thread_safe_call_async_cb, &m_map_evas_object);
+	//ecore_main_loop_thread_safe_call_sync(thread_safe_call_sync_cb, &m_map_evas_object);
 
-	//ecore_thread_main_loop_begin();
-	//elm_map_region_show(m_map_evas_object, __poi_center_lon, __poi_center_lat);
-	//ecore_thread_main_loop_end();
+	ecore_thread_main_loop_begin();
+	elm_map_region_show(m_map_evas_object, __poi_center_lon, __poi_center_lat);
+	ecore_thread_main_loop_end();
 }
