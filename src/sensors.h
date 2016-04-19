@@ -21,36 +21,40 @@
 //
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef SENSORS_H_
+#define SENSORS_H_
 
-#include <string>
-#include <dlog.h>
+#include <mraa.h>
 
-#if !defined(PACKAGE)
-#define PACKAGE "$(packageName)"
-#endif
-
-#ifdef  LOG_TAG
-#undef  LOG_TAG
-#endif
-#define LOG_TAG "IotivityMap"
-
-
-/** Pseudo singleton class to store common configuration variables **/
-class Config
+namespace Sensors
 {
-    public:
-        /** public interface (used both sides) **/
-        static std::string  m_interface;
-        /** type of resource (used both sides) **/
-        static std::string  m_type;
-        /** url's path (used both sides) **/
-        static std::string  m_endpoint;
-        /** key (used both sides) **/
-        static std::string  m_key;
-        /** network interface**/
-        static std::string m_link;
-};
+    extern mraa_gpio_context led_gpio;
 
-#endif /* CONFIG_H_ */
+    inline void SetupPins(int pin)
+    {
+        led_gpio = mraa_gpio_init(pin);
+        if (led_gpio != NULL) // Set direction to OUTPUT
+            mraa_gpio_dir(led_gpio, MRAA_GPIO_OUT);
+    }
+
+    inline void ClosePins()
+    {
+        mraa_gpio_close(led_gpio);
+    }
+
+    inline void SetOnboardLed(int on)
+    {
+        if (led_gpio == NULL)
+        {
+            led_gpio = mraa_gpio_init(Config::m_gpio);
+            if (led_gpio != NULL)  // Set direction to OUTPUT
+                mraa_gpio_dir(led_gpio, MRAA_GPIO_OUT);
+            else
+                exit(-1);
+        }
+        if (led_gpio != NULL) // Writes into GPIO
+            mraa_gpio_write(led_gpio, on);
+    }
+
+}
+#endif // SENSORS_H_
