@@ -176,7 +176,7 @@ static Eina_Bool onTick(void *data )
 	dlog_print(DLOG_ERROR, LOG_TAG, __PRETTY_FUNCTION__);
 	appdata_s *ad = (appdata_s *) data;
 
-	int mode = 0; // application mode
+	static int const mode = 0; // application mode //TODO set as 0 by default
 
 	switch (mode) {
 	case 1 : // an other use case
