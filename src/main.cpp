@@ -176,20 +176,28 @@ static Eina_Bool onTick(void *data )
 	dlog_print(DLOG_ERROR, LOG_TAG, __PRETTY_FUNCTION__);
 	appdata_s *ad = (appdata_s *) data;
 
-	if ( !true ) {
-		std::shared_ptr<Resource> resource = IoTClient::getInstance()->getPlatformResource();
-		if ( resource ) resource->get(); // wait discovery
-	} else {
-		if (false) {
-			start_location_manager(ad);
-		} else {
-			static double lat = 52.165;
-			static double lon = -2.21;
-			lat+=0.01;
-			lon+=0.01;
-			map_region_show(lon,lat);
-		}
+	int mode = 0; // application mode
 
+	switch (mode) {
+	case 1 : // an other use case
+		start_location_manager(ad);
+		break;
+
+	case 2 : // testing elm_map seems to work fine
+		static double lat = 52.165;
+		static double lon = -2.21;
+		map_region_show(lon,lat);
+		lat+=0.01;
+		lon+=0.01;
+		break;
+
+	default :
+		std::shared_ptr<Resource> resource = IoTClient::getInstance()->getPlatformResource();
+		if ( resource ) {
+			resource->get(); // wait discovery
+		} else {
+			IoTClient::getInstance()->findResource();
+		}
 	}
    return EINA_TRUE;
 }

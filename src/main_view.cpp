@@ -313,8 +313,8 @@ static void notify_func(void *data, Ecore_Thread *thread/* __UNUSED__*/,
 }
 
 static void heavy_func(void *data /*__UNUSED__*/, Ecore_Thread *thread) {
-	appdata_s *ad = (appdata_s*) data;
 	ecore_thread_main_loop_begin();
+	appdata_s *ad = (appdata_s*) data;
 	elm_map_region_show(m_map_evas_object, __poi_center_lon, __poi_center_lat);
 	ecore_thread_main_loop_end();
 }
@@ -328,12 +328,20 @@ handle_elm_map_region_show(void *data, Evas_Object *obj, void *event_info)
 	ecore_thread_main_loop_end();
 }
 
+static void
+thread_safe_call_async_cb(void *data)
+{
+	elm_map_region_show(m_map_evas_object, __poi_center_lon, __poi_center_lat);
+}
+
 void map_region_show(double lon, double lat)
 {
-	double __poi_center_lat = lat;
-	double __poi_center_lon = lon;
+	__poi_center_lat = lat;
+	__poi_center_lon = lon;
 
-	ecore_thread_main_loop_begin();
-	elm_map_region_show(m_map_evas_object, __poi_center_lon, __poi_center_lat);
-	ecore_thread_main_loop_end();
+    ecore_main_loop_thread_safe_call_async(thread_safe_call_async_cb, &m_map_evas_object);
+
+	//ecore_thread_main_loop_begin();
+	//elm_map_region_show(m_map_evas_object, __poi_center_lon, __poi_center_lat);
+	//ecore_thread_main_loop_end();
 }

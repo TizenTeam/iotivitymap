@@ -130,9 +130,9 @@ void IoTObserver::handleObserve(const HeaderOptions headerOptions, const OCRepre
 
     std::cout << Config::m_key << "=" << data << std::endl;
 
-
-	static double lat = 52.165;
-	static double lon = -2.21;
+    {
+	double lat = 0;
+	double lon = 0;
 
 	if (rep.hasAttribute("lat")) {
 		lat = rep.getValue<double>("lat");
@@ -143,6 +143,7 @@ void IoTObserver::handleObserve(const HeaderOptions headerOptions, const OCRepre
 
 	dlog_print(DLOG_INFO, LOG_TAG, "location: %f,%f", lat, lon);
 	map_region_show(lon, lat);
+    }
 }
 
 
