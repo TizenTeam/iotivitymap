@@ -8,36 +8,41 @@
 class Log : public std::ostream
 {
 public:
+  Log(std::ostream* out=0) {
+    mStream = out;
+  }
   Log& operator<<(const std::string& str) {
-    std::cout << str;
+	  if (mStream)
+    *mStream << str;
     dlog_print(DLOG_INFO, LOG_TAG, "%s", str.c_str() );
 
     return *this;
   }
   Log& operator<<(const char * str) {
-    std::cout << str;
+	  if (mStream) *mStream << str;
     dlog_print(DLOG_INFO, LOG_TAG, "%s", str );
     return *this;
   }
   Log& operator<<(const char str) {
-    std::cout << str;
-    //TRACEfs( str );
+	  if (mStream) *mStream  << str;
+    return *this;
+  }
+
+  Log& operator<<(const int str) {
+	  if (mStream) *mStream << str;
+    dlog_print(DLOG_INFO, LOG_TAG, "%d", str );
     return *this;
   }
 
   // http://stackoverflow.com/questions/1134388/stdendl-is-of-unknown-type-when-overloading-operator
   Log &operator<<(std::ostream& (*os)(std::ostream&)){
-    std::cout << *os;
+	  if (mStream) *mStream  << *os;
     return *this;
   }
 
-  Log& operator<<(const int str) {
-    std::cout << str;
-    //TRACEfs( str );
-    return *this;
-  }
   friend std::ostream& operator<<(std::ostream& os, const Log& stream);
-
+ private:
+  std::ostream* mStream;
 };
 
 //std::ostream& operator<<(std::ostream& os, const Log& stream) {   return os; }
@@ -45,6 +50,7 @@ public:
 namespace std {
 namespace local {
 extern Log cout;
+extern Log cerr;
 }
 }
 #endif
