@@ -1,8 +1,14 @@
+#ifndef logger_inl_
+#define logger_inl_ 1
+
 #include "logger.h"
-#include <iostream>
+//#include <iostream> // do no include
 
-//#undef cout
-//#define cout local::cout
+#undef cerr
+#define cerr local::cerr
 
-//#undef cerr
-//#define cerr local::cout
+#undef cout
+#define cout local::cout
+
+
+#endif
