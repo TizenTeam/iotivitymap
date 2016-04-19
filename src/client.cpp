@@ -33,15 +33,14 @@ using namespace OC;
 
 Resource::Resource(shared_ptr<OCResource> resource)
 {
+	cout<<__PRETTY_FUNCTION__<<std::endl;
     m_resourceHandle = resource;
     m_GETCallback = bind(&Resource::onGet, this, placeholders::_1, placeholders::_2, placeholders::_3);
-    m_PUTCallback = bind(&Resource::onPut, this, placeholders::_1, placeholders::_2, placeholders::_3);
 }
 
 Resource::~Resource()
 {
 }
-
 
 shared_ptr<Resource> IoTClient::getPlatformResource()
 {
@@ -58,27 +57,11 @@ void Resource::get()
     m_resourceHandle->get(params, m_GETCallback);
 }
 
-/** for development purpose only **/
-void Resource::put(std::string data)
-{
-    QueryParamsMap params;
-    OCRepresentation rep;
-    rep.setValue(Config::m_key, data);
-
-    static double lat = 52.165;
-    static double lon = -2.21;
-    lat += 0.01;
-    lon += 0.01;
-
-    rep.setValue("lat", lat);
-    rep.setValue("lon", lon);
-    m_resourceHandle->put(rep, params, m_PUTCallback);
-}
 
 void Resource::onGet(const HeaderOptions &headerOptions, const OCRepresentation &representation,
                      int errCode)
 {
-	dlog_print(DLOG_ERROR, LOG_TAG, __PRETTY_FUNCTION__);
+	dlog_print(DLOG_ERROR, LOG_TAG,"%s {", __PRETTY_FUNCTION__ );
 
     if (errCode == OC_STACK_OK)
     {
@@ -88,23 +71,8 @@ void Resource::onGet(const HeaderOptions &headerOptions, const OCRepresentation 
     {
         cerr << endl << endl << "Error in GET response from Resource resource" << endl;
     }
-    IoTClient::DisplayMenu();
-}
 
-void Resource::onPut(const HeaderOptions &headerOptions, const OCRepresentation &representation,
-                     int errCode)
-{
-    if (errCode == OC_STACK_OK)
-    {
-        int value;
-        representation.getValue(Config::m_key, value);
-        cout << endl << endl << "Set Resource switch to: " << value << endl;
-    }
-    else
-    {
-        cerr << endl << endl << "Error in PUT response from Resource resource" << endl;
-    }
-    IoTClient::DisplayMenu();
+	dlog_print(DLOG_ERROR, LOG_TAG,"%s }", __PRETTY_FUNCTION__ );
 }
 
 
@@ -183,7 +151,6 @@ void IoTClient::discoveredResource(shared_ptr<OCResource> resource)
                 m_platformResource = make_shared<Resource>(resource);
             }
         }
-        IoTClient::DisplayMenu();
     }
     catch (OCException &ex)
     {
@@ -192,49 +159,3 @@ void IoTClient::discoveredResource(shared_ptr<OCResource> resource)
 }
 
 
-
-void IoTClient::DisplayMenu()
-{
-    cout << "\nEnter:" << endl
-         << "*) Display this menu" << endl
-         << "9) Quit" << endl;
-}
-
-
-#if 0
-#define main client_main
-
-
-int main(int argc, char *argv[])
-{
-    IoTClient client;
-    cout << "Performing Discovery..." << endl;
-    client.findResource();
-    int choice = 0;
-
-    do
-    {
-
-        string data = "0,0";
-
-        time_t const now = time(0);
-        char *dt = ctime(&now);
-        data = string(dt);
-
-        if (client.getPlatformResource())
-        {
-            client.getPlatformResource()->put(data);
-        }
-        else
-        {
-            cout << "Resource resource not yet discovered" << endl;
-        }
-        cerr << "sleeping" << endl;
-        sleep(10);
-        cerr << "slept:" << choice << endl;
-
-    }
-    while (choice != 9);
-    return 0;
-}
-#endif
