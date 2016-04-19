@@ -22,7 +22,13 @@
 #include "config.h"
 #include <cstdio>
 
+#include <dlog.h>
+#include "logger.h"
+#include "logger.inl"
+
 #include "observer.h"
+#include "main_view.h"
+#include "main.h"
 
 using namespace std;
 using namespace OC;
@@ -112,9 +118,35 @@ void IoTObserver::discoveredResource(shared_ptr<OCResource> resource)
     }
 }
 
+void IoTObserver::handleObserve(const HeaderOptions headerOptions, const OCRepresentation &rep,
+		const int &eCode, const int &sequenceNumber)
+{
+	dlog_print(DLOG_ERROR, LOG_TAG,__PRETTY_FUNCTION__);
+
+    std::cout << "OBSERVE RESULT:" << std::endl;
+    std::cout << "\tSequenceNumber: " << sequenceNumber << std::endl;
+    std::string data;
+    rep.getValue( Config::m_key, data);
+
+    std::cout << Config::m_key << "=" << data << std::endl;
 
 
-void IoTObserver::onObserve(const HeaderOptions /*headerOptions*/, const OCRepresentation &rep,
+	static double lat = 52.165;
+	static double lon = -2.21;
+
+	if (rep.hasAttribute("lat")) {
+		lat = rep.getValue<double>("lat");
+	}
+	if (rep.hasAttribute("lon")) {
+		lon = rep.getValue<double>("lon");
+	}
+
+	dlog_print(DLOG_INFO, LOG_TAG, "location: %f,%f", lat, lon);
+	map_region_show(lon, lat);
+}
+
+
+void IoTObserver::onObserve(const HeaderOptions headerOptions, const OCRepresentation &rep,
                             const int &eCode, const int &sequenceNumber)
 {
     cout << __PRETTY_FUNCTION__ << endl;
@@ -130,13 +162,7 @@ void IoTObserver::onObserve(const HeaderOptions /*headerOptions*/, const OCRepre
             {
                 std::cout << "Observe De-registration action is successful" << std::endl;
             }
-
-            std::cout << "OBSERVE RESULT:" << std::endl;
-            std::cout << "\tSequenceNumber: " << sequenceNumber << std::endl;
-            std::string data;
-            rep.getValue( Config::m_key, data);
-
-            std::cout << Config::m_key << "=" << data << std::endl;
+            handleObserve(headerOptions, rep, eCode, sequenceNumber);
         }
         else
         {
@@ -160,7 +186,6 @@ void IoTObserver::onObserve(const HeaderOptions /*headerOptions*/, const OCRepre
 
 #if 0
 #define main observer_main
-#endif
 
 
 int main(int argc, char *argv[])
@@ -182,3 +207,4 @@ int main(int argc, char *argv[])
     while (choice != 9);
     return 0;
 }
+#endif

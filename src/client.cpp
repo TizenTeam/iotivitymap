@@ -25,6 +25,7 @@
 #include <unistd.h>
 #include <ctime>
 #include "client.h"
+#include "observer.h"
 
 using namespace std;
 using namespace OC;
@@ -50,10 +51,14 @@ shared_ptr<Resource> IoTClient::getPlatformResource()
 
 void Resource::get()
 {
+	dlog_print(DLOG_ERROR, LOG_TAG, __PRETTY_FUNCTION__);
+
     QueryParamsMap params;
+    assert(m_resourceHandle); //TODO display alert if not ready
     m_resourceHandle->get(params, m_GETCallback);
 }
 
+/** for development purpose only **/
 void Resource::put(std::string data)
 {
     QueryParamsMap params;
@@ -73,11 +78,11 @@ void Resource::put(std::string data)
 void Resource::onGet(const HeaderOptions &headerOptions, const OCRepresentation &representation,
                      int errCode)
 {
+	dlog_print(DLOG_ERROR, LOG_TAG, __PRETTY_FUNCTION__);
+
     if (errCode == OC_STACK_OK)
     {
-        int value;
-        representation.getValue(Config::m_key, value);
-        cout << endl << endl << "Resource switch state is: " << value << endl;
+      IoTObserver::handleObserve(headerOptions, representation, errCode, 0);
     }
     else
     {
@@ -105,7 +110,7 @@ void Resource::onPut(const HeaderOptions &headerOptions, const OCRepresentation 
 
 IoTClient::IoTClient()
 {
-    cout << "Running IoTClient constructor" << endl;
+    cerr << "Running IoTClient constructor" << endl;
     initializePlatform();
 }
 
@@ -136,7 +141,10 @@ void IoTClient::initializePlatform()
 
 void IoTClient::findResource()
 {
-    string coap_multicast_discovery = string(OC_RSRVD_WELL_KNOWN_URI "?if=" );
+	dlog_print(DLOG_ERROR, LOG_TAG,__PRETTY_FUNCTION__);
+
+    string coap_multicast_discovery = string(OC_RSRVD_WELL_KNOWN_URI);
+    coap_multicast_discovery += "?if=";
     coap_multicast_discovery += Config::m_interface;
     OCConnectivityType connectivityType(CT_ADAPTER_IP);
     OCPlatform::findResource("", coap_multicast_discovery.c_str(),
@@ -147,6 +155,8 @@ void IoTClient::findResource()
 
 void IoTClient::discoveredResource(shared_ptr<OCResource> resource)
 {
+	dlog_print(DLOG_ERROR, LOG_TAG, __PRETTY_FUNCTION__);
+
     try
     {
         if (resource)
@@ -191,6 +201,10 @@ void IoTClient::DisplayMenu()
 }
 
 
+#if 0
+#define main client_main
+
+
 int main(int argc, char *argv[])
 {
     IoTClient client;
@@ -223,3 +237,4 @@ int main(int argc, char *argv[])
     while (choice != 9);
     return 0;
 }
+#endif

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="2.4" package="org.example.iotivitymaps" version="1.0.0">
+    <profile name="mobile"/>
+    <ui-application appid="org.example.iotivitymaps" exec="maps" 
+type="capp" multiple="false" taskmanage="true" nodisplay="false">
+        <icon>maps.png</icon>
+        <label>IoTivity Map</label>
+    </ui-application>
+    <privileges>
+        <privilege>http://tizen.org/privilege/network.get</privilege>
+        <privilege>http://tizen.org/privilege/location</privilege>
+        <privilege>http://tizen.org/privilege/internet</privilege>
+    </privileges>
+</manifest>
