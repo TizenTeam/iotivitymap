@@ -1,8 +1,10 @@
 #include "logger.h"
+#include <iostream>
 
 namespace std {
 namespace local {
-Log cout;
+  Log cout(&std::cout);
+  Log cerr(&std::cerr);
 }
 }
 
