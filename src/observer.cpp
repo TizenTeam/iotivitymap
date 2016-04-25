@@ -20,8 +20,6 @@
 //
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 #include "config.h"
-#include "logger.inl"
-
 #include <cstdio>
 
 #include <dlog.h>
