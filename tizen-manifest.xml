@@ -3,7 +3,7 @@
 	<profile name="wearable" />
 	<ui-application appid="org.example.iotivitymapswearable" exec="iotivitymapswearable" type="capp" multiple="false" taskmanage="true" nodisplay="false">
 		<icon>iotivitymaps.png</icon>
-		<label>iotivity maps wearable</label>
+		<label>IoTivity Maps</label>
 	</ui-application>
    <privileges>
         <privilege>http://tizen.org/privilege/network.get</privilege>
