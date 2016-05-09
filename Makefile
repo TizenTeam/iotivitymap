@@ -23,7 +23,7 @@
 
 default: all
 
-package?=iotivity-example-stream
+package?=iotivitymap
 
 
 DEST_LIB_DIR?=${DESTDIR}${local_optdir}/${package}/
