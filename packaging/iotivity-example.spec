@@ -1,4 +1,4 @@
-Name:           iotivity-example-stream
+Name:           iotivitymap
 Version:        1.0.0
 Release:        0
 License:        Apache-2.0
