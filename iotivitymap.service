@@ -1,0 +1,11 @@
+[Unit]
+Description="Location server"
+After=network.target
+
+[Service]
+ExecStart=/opt/iotivitymap/server
+Restart=always
+
+[Install]
+WantedBy=default.target
+
