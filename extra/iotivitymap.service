@@ -1,10 +1,9 @@
-
 [Unit]
-Description=
+Description="Location server"
 After=network.target
 
 [Service]
-ExecStart=$exe
+ExecStart=/opt/iotivitymap/server
 Restart=always
 
 [Install]
