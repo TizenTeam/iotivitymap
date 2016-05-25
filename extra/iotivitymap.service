@@ -1,0 +1,12 @@
+
+[Unit]
+Description=
+After=network.target
+
+[Service]
+ExecStart=$exe
+Restart=always
+
+[Install]
+WantedBy=default.target
+
