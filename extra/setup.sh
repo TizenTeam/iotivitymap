@@ -22,12 +22,12 @@
 set -e
 set -x
 
-profile="tizen"
-version="1.1.0"
+profile="tizen_2_4_mobile"
+version="1.0.1"
 arch="armv7l"
-gbsdir="${HOME}/GBS-ROOT-OIC"
+gbsdir="${HOME}/tmp/gbs/tmp-GBS-${profile}-${arch}/"
 rootfs="${gbsdir}/local/BUILD-ROOTS/scratch.${arch}.0/"
-rpmdir="${gbsdir}/local/repos/${profile}/${arch}/RPMS/"
+rpmdir="${gbsdir}/local/repos/${profile}_${arch}/${arch}/RPMS/"
 
 
 die_()
@@ -48,18 +48,42 @@ setup_()
 
 build_()
 {
-    package="iotivity"
-    branch="1.1.0"
-    url="https://github.com/iotivity/iotivity"
+    package="tizen-helper"
+    url="https://notabug.org/tizen/${package}"
+    branch="tizen"
+    git clone -b ${branch} "$url"
+
+    echo "# check toolchain"
+    make -C ${package} deploy
+    make -C ${package} profile.${profile}-${arch}
+
+    make="make -f ${PWD}/tizen-helper/Makefile profile.${profile}-${arch}"
+    
+    # Scons is not available on Tizen:2.3.1:Wearable yet
+    package="scons"
+    branch="sandbox/pcoval/tizen_2.3"
+    url="https://git.tizen.org/cgit/platform/upstream/${package}.git"
     git clone -b ${branch} ${url}
-    cd iotivity || die_ "io"
-    ls extlibs/tinycbor/tinycbor || \
-	git clone https://github.com/01org/tinycbor.git extlibs/tinycbor/tinycbor
+    $make -C ${package}
+    
+    package="iotivity"
+    branch="sandbox/pcoval/latest"
+    url="https://git.tizen.org/cgit/contrib/${package}.git"
+    git clone -b ${branch} ${url}
+    $make -C ${package}
+    
+    package="mraa"
+    branch="sandbox/pcoval/tizen"
+    url="https://git.tizen.org/cgit/contrib/${package}.git"
+    git clone -b ${branch} ${url}
+    $make -C ${package}
 
-    wget -c -O extlibs/sqlite3/sqlite-amalgamation-3081101.zip \
-	http://www.sqlite.org/2015/sqlite-amalgamation-3081101.zip 
+    package="iotivity-example"
+    url="https://notabug.org/tizen/${package}"
+    branch="tizen"
+    git clone -b ${branch} "$url"
+    $make -C ${package}
 
-    ./auto_build.sh tizen
 }
 
 
@@ -74,34 +98,24 @@ deploy_()
     unp ${rpmdir}/iotivity-${version}-*.${arch}.rpm
     unp ${rpmdir}/iotivity-devel-${version}-*${arch}.rpm
 
-    mkdir -p usr/include/iotivity/
-    mv usr/include/* usr/include/iotivity/
-
     ln -fs ${rootfs}/usr/include/boost usr/include/
     ln -fs ${rootfs}/usr/lib/libuuid.so.1.3.0 usr/lib/libuuid1.so # TODO
-    cp -av ${rootfs}/usr/lib/libconnectivity_abstraction.so  usr/lib/ ||: #TODO might not be needed
+    cp -av ${rootfs}/usr/lib/libconnectivity_abstraction.so  usr/lib/ #TODO might not be needed
 
     rm -rf lib
     ln -fs usr/lib lib
+
 }
 
-
-main_()
-{
-    cat<<EOF
+cat<<EOF
 Check:
 
 https://wiki.iotivity.org/tizen
 EOF
 
-    projectdir=$(pwd)
-    which git || setup_
-    
-    mkdir -p ${projectdir}/tmp
-    cd ${projectdir}/tmp && build_
-    cd ${projectdir} && deploy_
-}
+projectdir=$(pwd)
+which git || setup_
 
-
-[ "" != "$1" ] || main_
-$@
+mkdir -p ${projectdir}/tmp
+cd ${projectdir}/tmp && build_
+cd ${projectdir} && deploy_
