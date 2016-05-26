@@ -112,7 +112,7 @@ void IoTClient::findResource()
 	dlog_print(DLOG_ERROR, LOG_TAG,__PRETTY_FUNCTION__);
 
     string coap_multicast_discovery = string(OC_RSRVD_WELL_KNOWN_URI);
-    coap_multicast_discovery += "?if=";
+    coap_multicast_discovery += "?rt=";
     coap_multicast_discovery += Config::m_interface;
     OCConnectivityType connectivityType(CT_ADAPTER_IP);
     OCPlatform::findResource("", coap_multicast_discovery.c_str(),
