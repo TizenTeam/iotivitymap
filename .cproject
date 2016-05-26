@@ -380,7 +380,6 @@
 							<tool id="org.tizen.nativecore.tool.sbi.edc.compiler.1014935386" name="EDC Resource Compiler" superClass="org.tizen.nativecore.tool.sbi.edc.compiler.1114423893"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="org.tizen.nativecore.config.sbi.gcc45.app.debug.24591278.1195867593" name="logger.inl" rcbsApplicability="disable" resourcePath="src/logger.inl" toolsToInvoke=""/>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="inc"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="res"/>
