@@ -23,7 +23,7 @@ set -e
 set -x
 
 profile="tizen_2_4_mobile"
-version="1.0.1"
+version="1.1.0"
 arch="armv7l"
 gbsdir="${HOME}/tmp/gbs/tmp-GBS-${profile}-${arch}/"
 rootfs="${gbsdir}/local/BUILD-ROOTS/scratch.${arch}.0/"
@@ -59,31 +59,11 @@ build_()
 
     make="make -f ${PWD}/tizen-helper/Makefile profile.${profile}-${arch}"
     
-    # Scons is not available on Tizen:2.3.1:Wearable yet
-    package="scons"
-    branch="sandbox/pcoval/tizen_2.3"
-    url="https://git.tizen.org/cgit/platform/upstream/${package}.git"
-    git clone -b ${branch} ${url}
-    $make -C ${package}
-    
     package="iotivity"
-    branch="sandbox/pcoval/latest"
-    url="https://git.tizen.org/cgit/contrib/${package}.git"
+    branch="sandbox/pcoval/on/latest/tizen"
+    url="http://github.com/tizenteam/${package}"
     git clone -b ${branch} ${url}
     $make -C ${package}
-    
-    package="mraa"
-    branch="sandbox/pcoval/tizen"
-    url="https://git.tizen.org/cgit/contrib/${package}.git"
-    git clone -b ${branch} ${url}
-    $make -C ${package}
-
-    package="iotivity-example"
-    url="https://notabug.org/tizen/${package}"
-    branch="tizen"
-    git clone -b ${branch} "$url"
-    $make -C ${package}
-
 }
 
 
@@ -100,7 +80,7 @@ deploy_()
 
     ln -fs ${rootfs}/usr/include/boost usr/include/
     ln -fs ${rootfs}/usr/lib/libuuid.so.1.3.0 usr/lib/libuuid1.so # TODO
-    cp -av ${rootfs}/usr/lib/libconnectivity_abstraction.so  usr/lib/ #TODO might not be needed
+    cp -av ${rootfs}/usr/lib/libconnectivity_abstraction.so  usr/lib/ || : #TODO might not be needed
 
     rm -rf lib
     ln -fs usr/lib lib
